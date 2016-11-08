@@ -45,7 +45,8 @@ numAnimalIds = numel(dirContentAnimalIDLevel);
 
 dataRow = struct('animalID',[],'conditionID',[],'dataFileName',[],...
     'daysAfterBaseline',[],'experimentType',[],'FOV',[],'fps',[],...
-    'maxProjImg',[],'Coor',[],'C_df',[],'S_or',[],'StimVector',[],'SpeedVector',[]);
+    'maxProjImg',[],'Coor',[],'C_df',[],'S_or',[],'StimVector',[],'SpeedVector',[],...
+    'run_stim',[],'run_no_stim',[],'stand_stim',[],'stand_no_stim',[]);
 
 EP_FILES_COMPILED =[];
 
@@ -122,7 +123,10 @@ for iIDs = 1 : numAnimalIds
                     thisRow.daysAfterBaseline = dirContentCurrentCond(iDAY).name;
                     thisRow.experimentType = experimentID;
                     thisRow.FOV = FOV;
-                    
+                    thisRow.run_stim=run_stim;
+                    thisRow.run_no_stim=run_no_stim;
+                    thisRow.stand_stim=stand_stim;
+                    thisRow.stand_no_stim=stand_no_stim;
                     %generate summary figure
                     generateBasicSumary (path2sourceDir,thisRow)
                     

@@ -14,17 +14,41 @@ function [ dataRow ] = getDataFromCurrentDir( currentDir ,animalID, dataRow)
 warning OFF BACKTRACE %turns off displaying line #
 %look for data
 ptr2mat = dir([currentDir filesep '*' animalID '*.mat']);
+%mat file name cannot contain "analog" on it's name
+%%
+valid = zeros(numel(ptr2mat),1)
+for iFILE = 1 : numel(valid)
+    if ( isempty(strfind(ptr2mat(iFILE).name,'Analog')) && isempty(strfind(ptr2mat(iFILE).name,'mv_mpP')))
+        valid(iFILE) = 1;
+    end
+end
 
+if sum(valid)>1
+    error('Folder contains more that a single .mat file with appropiate name')
+end
+
+ptr2mat = ptr2mat(logical(valid));
+%%
 %get EP data
 if isempty(ptr2mat)
     warning('No EP data here...')
 else
-    
     load(fullfile(currentDir,ptr2mat.name))
+    ptr2mat.name
+    currentDir
     dataRow.dataFileName = ptr2mat.name;
     dataRow.Coor = Coor;
     dataRow.S_or = S_or;
-    dataRow.C_df = C_df;
+    if exist('C_df')  %in some files I don't have the C_df until I run a fix
+       dataRow.C_df =C_df; 
+    else
+        dataRow.C_df = [];%C_df;
+    end
+    dataRow.run_stim=run_stim;
+    dataRow.run_no_stim=run_no_stim;
+    dataRow.stand_stim=stand_stim;
+    dataRow.stand_no_stim=stand_no_stim;
+    
 end
     
 %get fps
@@ -47,7 +71,7 @@ else
 end
 
 %get  Stimulus times
-ptr2mat = dir([currentDir filesep '*Analog1*.mat']);
+ptr2mat = dir([currentDir filesep '*analog1*.mat']);
 
 if isempty(ptr2mat)
     warning('No Analog1 data here...')
@@ -57,7 +81,7 @@ else
 end
 
 %get  running speed
-ptr2mat = dir([currentDir filesep '*Analog2*.mat']);
+ptr2mat = dir([currentDir filesep '*analog2*.mat']);
 
 if isempty(ptr2mat)
     warning('No Analog2 data here...')
