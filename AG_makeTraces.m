@@ -1,19 +1,13 @@
-function generateBasicSumary (path2sourceDir,thisRow)
-
-%% C_df matrix of the EP analysis
-
-dF = thisRow.C_df;
+dF=C_df;
 [nCells nT] = size(dF);
-img = thisRow.maxProjImg;
-Coor = thisRow.Coor;
-S_or = thisRow.S_or;
-
-%% plot image
-figure('Name',thisRow.dataFileName)
+dataFileName=FileName;
+img = maxProjImg;
+% % plot image
+figure('Name',dataFileName)
 subplot(3,3,[2 3 5 6])
 imagesc(img)
 axis image
-title(thisRow.dataFileName)
+title(dataFileName)
 imagesc(img)
 colormap copper
 hold on
@@ -32,6 +26,9 @@ axis off
 
 %add an increment to each dF line so they separate in the plot
 
+% [dataFileName,path2sourceDir]=uigetfile('*.mat');
+% fullfile(path2sourceDir,filesep, dataFileName);
+% load(fullfile);
 
 a1 = subplot(3,3,[1 4]);
 offset = [1:nCells]';
@@ -55,6 +52,6 @@ ylabel('Cell ID')
 xlabel('Frame')
 
 %%
-filename = thisRow.dataFileName(1:strfind(thisRow.dataFileName,'.mat')-1)
-
-export_fig(fullfile(path2sourceDir,filename),'-eps')%pb  added ,'-eps'
+% filename = dataFileName(1:strfind(dataFileName,'.mat')-1);
+% export_fig(fullfile(pwd,filename),'-eps');%pb  added ,'-eps'
+%export_fig(fullfile(path2sourceDir,filename),'-eps');%pb  added ,'-eps'

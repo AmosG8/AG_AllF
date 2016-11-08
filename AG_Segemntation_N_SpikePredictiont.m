@@ -130,7 +130,6 @@ if Separate
     %first get the 'stim_frames' and the 'run_frames'
     stim_frames = AG_FindAirPuffTImes(fps);% returns a vector of the indexes of the first frame of each stim
     run_frames = AG_FindMovTIme;%returns a vector of the indexes of the running frames
-
     %Separate_Data into 4 matrixes
     run_stim = S_or(:,stim_frames & run_frames);  %both stim_frames and run_frames = 1
     run_no_stim = S_or(:,~stim_frames & run_frames);  %stim_frames isn't 1, and run_frames = 1

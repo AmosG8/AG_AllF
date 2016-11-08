@@ -1,7 +1,6 @@
 function [T,EP_FILES_COMPILED] = gatherCalciumMatFiles(path2sourceDir)
-%funcitons browses set of input directories and gathers results into
-%EP_FILES_COMPILED (AG changed from "database")
-
+%funcitons browses set of input directories and gathers results into "database"
+%
 %Directory structure
 %
 %   animalID
@@ -27,7 +26,6 @@ function [T,EP_FILES_COMPILED] = gatherCalciumMatFiles(path2sourceDir)
 %find out number of "animal ID" folders
 
 clc
-path2sourceDir = uigetdir('*.*','select a mouse directory');
 
 fprintf('Processing root data directory "%s" ',path2sourceDir);
 %for each directory, find out how many conditions
@@ -39,9 +37,11 @@ numAnimalIds = numel(dirContentAnimalIDLevel);
 
 %%
 
+
 dataRow = struct('animalID',[],'conditionID',[],'dataFileName',[],...
     'daysAfterBaseline',[],'experimentType',[],'FOV',[],'fps',[],...
-    'maxProjImg',[],'Coor',[],'C_df',[],'S_or',[],'StimVector',[],'SpeedVector',[]);
+    'maxProjImg',[],'Coor',[],'C_df',[],'S_or',[],'StimVector',[],'SpeedVector',[],...
+    'run_stim',[],'run_no_stim',[],'stand_stim',[],'stand_no_stim',[]);
 
 EP_FILES_COMPILED =[];
 
@@ -118,8 +118,13 @@ for iIDs = 1 : numAnimalIds
                     thisRow.daysAfterBaseline = dirContentCurrentCond(iDAY).name;
                     thisRow.experimentType = experimentID;
                     thisRow.FOV = FOV;
+%                     thisRow.run_stim=run_stim;
+%                     thisRow.run_no_stim=run_no_stim;
+%                     thisRow.stand_stim=stand_stim;
+%                     thisRow.stand_no_stim=stand_no_stim;
                     
                     %generate summary figure
+%AG commented to avoid displaying all the plots 
                     if ~isempty(thisRow.dataFileName)
                         generateBasicSumary (path2sourceDir,thisRow)
                     end
@@ -140,4 +145,4 @@ end%cycling animal ids
 fprintf('\nSaving data (.mat and .txt) to %s',path2sourceDir);
 T = struct2table(EP_FILES_COMPILED)
 %writetable(T,fullfile(path2groupledResults,'EP_FILES_COMPILED.txt'))
-save(fullfile(path2sourceDir,'EP_FILES_COMPILED.mat'),'EP_FILES_COMPILED')
+save(fullfile(path2sourceDir,'AG_EP_FILES_COMPILED.mat'),'EP_FILES_COMPILED')

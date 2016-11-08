@@ -4,23 +4,27 @@
 %each of them has 2 rows: the 1st row contains strings with the days
 %the 2nd contains a vector of S_or summerized for each day
 %normalized for 100msec (Artificial_fps=10)
+clear all;
+load('EP_FILES_COMPILED.mat');
 %% Definitions
 Artificial_fps=10; %normalize S_or to 10fps
 Default_fps=4.36; %for case the fps isn't provided in the structure
 Imaging_Days=[];
 EP_stim = struct('animalID',[],'conditionID',[],'dataFileName',[],...
     'daysAfterBaseline',[],'experimentType',[],'FOV',[],'fps',[],...
-    'maxProjImg',[],'Coor',[],'C_df',[],'S_or',[],'StimVector',[],'SpeedVector',[]);
+    'maxProjImg',[],'Coor',[],'C_df',[],'S_or',[],'StimVector',[],'SpeedVector',[],...
+    'run_stim',[],'run_no_stim',[],'stand_stim',[],'stand_no_stim',[] );
 EP_spont = struct('animalID',[],'conditionID',[],'dataFileName',[],...
     'daysAfterBaseline',[],'experimentType',[],'FOV',[],'fps',[],...
-    'maxProjImg',[],'Coor',[],'C_df',[],'S_or',[],'StimVector',[],'SpeedVector',[]);
+    'maxProjImg',[],'Coor',[],'C_df',[],'S_or',[],'StimVector',[],'SpeedVector',[],...
+    'run_stim',[],'run_no_stim',[],'stand_stim',[],'stand_no_stim',[]);
 
 %% 1. make new structs out of 'EP_FILES_COMPILED' named 'EP_spont' and 'EP_stim' 
 %that contains only spont or stim
 
 %1.1 make EP_spont
 Spont_counter=1;
-for iEX=1:numel(EP_FILES_COMPILED)
+for iEX=1:numel(EP_FILES_COMPILED)%AGG
     if strcmp(EP_FILES_COMPILED(iEX).experimentType, 'SPONT')
        EP_spont(Spont_counter) = EP_FILES_COMPILED(iEX);
        Spont_counter=Spont_counter+1;
@@ -56,95 +60,53 @@ Imaging_DaysHypo_stim = unique(extractfield(HypoStruct_stim, 'daysAfterBaseline'
 %c(1,5:end) ->the number
 
 %% 4. Correct S_or and make cell arrays that contain same day data out of the structures done in section 2 
+spont_Hyper = AG_summerizeDAY_general_F (Imaging_DaysHyper_spont,HyperStruct_spont, 'S_or');
+spont_Hypo = AG_summerizeDAY_general_F (Imaging_DaysHypo_spont,HypoStruct_spont, 'S_or');
+stim_Hyper = AG_summerizeDAY_general_F (Imaging_DaysHyper_stim,HyperStruct_stim, 'S_or');
+stim_Hypo = AG_summerizeDAY_general_F (Imaging_DaysHypo_stim,HypoStruct_stim, 'S_or');
 
-%4.1 for Spont Hyper
-SummerizeDay_spont_Hyper=cell(2,numel(Imaging_DaysHyper_spont));%initialize the cell array
-for iDay=1:numel(Imaging_DaysHyper_spont)  
-    temp=[]; S_Or_Vec=[]; FOV=0;
-    for iSpontEX=1:numel(HyperStruct_spont)
-        if strcmp(HyperStruct_spont(iSpontEX).daysAfterBaseline, Imaging_DaysHyper_spont(iDay))
-           S_Or_Vec= mean(HyperStruct_spont(iSpontEX).S_or,2);
-           if HyperStruct_spont(iSpontEX).fps%the if is for a case we dont have the fps info
-             S_Or_Vec= S_Or_Vec ./ Artificial_fps .* HyperStruct_spont(iSpontEX).fps; %this sets the results to be per 100msec
-           else
-               S_Or_Vec= S_Or_Vec ./ Artificial_fps .*Default_fps;
-               %AG changed the former calculation that was incorrect
-               %S_Or_Vec= S_Or_Vec .* Artificial_fps ./Default_fps;     30/10/16
-           end
-           temp=[temp;S_Or_Vec];%adding the vector values to temp below the formers
-           SummerizeDay_spont_Hyper{3+FOV,iDay}=S_Or_Vec;
-           FOV=FOV+1;
-        end %of if matched day    
-    end
-    SummerizeDay_spont_Hyper{1,iDay}=Imaging_DaysHyper_spont(iDay);%title
-    SummerizeDay_spont_Hyper{2,iDay}=temp;    %a cell with all the values
-end
+stand_no_stimulation_spont_Hyper = AG_summerizeDAY_general_F (Imaging_DaysHyper_spont,HyperStruct_spont, 'stand_no_stim');
+stand_no_stimulation_spont_Hypo = AG_summerizeDAY_general_F (Imaging_DaysHypo_spont,HypoStruct_spont, 'stand_no_stim');
+stand_no_stimulation_stim_Hyper = AG_summerizeDAY_general_F (Imaging_DaysHyper_stim,HyperStruct_stim, 'stand_no_stim');
+stand_no_stimulation_stim_Hypo = AG_summerizeDAY_general_F (Imaging_DaysHypo_stim,HypoStruct_stim, 'stand_no_stim');
 
-% 4.2 for Spont Hypo
-SummerizeDay_spont_Hypo=cell(2,numel(Imaging_DaysHypo_spont));%initialize the cell array
-for iDay=1:numel(Imaging_DaysHypo_spont)  
-    temp=[];S_Or_Vec=[];FOV=0;
-    for iSpontEX=1:numel(HypoStruct_spont)
-        if strcmp(HypoStruct_spont(iSpontEX).daysAfterBaseline, Imaging_DaysHypo_spont(iDay))
-           S_Or_Vec = mean(HypoStruct_spont(iSpontEX).S_or,2);
-           if HypoStruct_spont(iSpontEX).fps
-             S_Or_Vec=S_Or_Vec ./ Artificial_fps .* HypoStruct_spont(iSpontEX).fps;
-           else
-               S_Or_Vec=S_Or_Vec ./ Artificial_fps .*Default_fps;
-           end
-           temp=[temp;S_Or_Vec];%adding the vector values to temp below the formers
-           SummerizeDay_spont_Hypo{3+FOV,iDay}=S_Or_Vec;
-           FOV=FOV+1;
-        end     
-    end
-    SummerizeDay_spont_Hypo{1,iDay}=Imaging_DaysHypo_spont(iDay);%title
-    SummerizeDay_spont_Hypo{2,iDay}=temp;    %a cell with rhe values
-end
-    
- %4.3 for Stim Hyper
-SummerizeDay_stim_Hyper=cell(2,numel(Imaging_DaysHyper_stim));%initialize the cell array
-for iDay=1:numel(Imaging_DaysHyper_stim)  
-    temp=[]; S_Or_Vec=[];FOV=0;
-    for iEX=1:numel(HyperStruct_stim)
-        if strcmp(HyperStruct_stim(iEX).daysAfterBaseline, Imaging_DaysHyper_stim(iDay))
-           S_Or_Vec = mean(HyperStruct_stim(iEX).S_or,2);
-           if HyperStruct_stim(iEX).fps
-             S_Or_Vec=S_Or_Vec ./ Artificial_fps .* HyperStruct_stim(iEX).fps; %this sets the results to be per 100msec
-           else
-               S_Or_Vec=S_Or_Vec ./ Artificial_fps .*Default_fps;
-           end
-           temp=[temp;S_Or_Vec];%adding the vector values to temp below the formers
-           SummerizeDay_stim_Hyper{3+FOV,iDay}=S_Or_Vec;
-           FOV=FOV+1;
-        end     
-    end
-    SummerizeDay_stim_Hyper{1,iDay}=Imaging_DaysHyper_stim(iDay);%title
-    SummerizeDay_stim_Hyper{2,iDay}=temp;    %a cell with rhe values
-end
- %4.4 for Stim Hypo
-SummerizeDay_stim_Hypo=cell(2,numel(Imaging_DaysHypo_stim));%initialize the cell array
-for iDay=1:numel(Imaging_DaysHypo_stim)  
-    temp=[];S_Or_Vec=[];FOV=0;
-    for iEX=1:numel(HypoStruct_stim)
-        if strcmp(HypoStruct_stim(iEX).daysAfterBaseline, Imaging_DaysHypo_stim(iDay))
-           S_Or_Vec = mean(HypoStruct_stim(iEX).S_or,2);
-           if HypoStruct_stim(iEX).fps
-             S_Or_Vec=S_Or_Vec ./ Artificial_fps .* HypoStruct_stim(iEX).fps;
-           else
-             S_Or_Vec=S_Or_Vec ./ Artificial_fps .*Default_fps;
-           end
-           temp=[temp;S_Or_Vec];%adding the vector values to temp below the formers
-           %store each FOV 
-           SummerizeDay_stim_Hypo{3+FOV,iDay}=S_Or_Vec;
-           FOV=FOV+1;
-        end     
-    end
-    SummerizeDay_stim_Hypo{1,iDay}=Imaging_DaysHypo_stim(iDay);%title
-    SummerizeDay_stim_Hypo{2,iDay}=temp;    %a cell with rhe values
-end
+stand_stimulation_spont_Hyper = AG_summerizeDAY_general_F (Imaging_DaysHyper_spont,HyperStruct_spont, 'stand_stim');
+stand_stimulation_spont_Hypo = AG_summerizeDAY_general_F (Imaging_DaysHypo_spont,HypoStruct_spont, 'stand_stim');
+stand_stimulation_stim_Hyper = AG_summerizeDAY_general_F (Imaging_DaysHyper_stim,HyperStruct_stim, 'stand_stim');
+stand_stimulation_stim_Hypo = AG_summerizeDAY_general_F (Imaging_DaysHypo_stim,HypoStruct_stim, 'stand_stim');
 
-%% 5. save the summary variables
-save('stim_Hypo','SummerizeDay_stim_Hypo');
-save('stim_Hyper','SummerizeDay_stim_Hyper');
-save('spont_Hypo','SummerizeDay_spont_Hypo');
-save('spont_Hyper','SummerizeDay_spont_Hyper');
+run_stimulation_spont_Hyper = AG_summerizeDAY_general_F (Imaging_DaysHyper_spont,HyperStruct_spont, 'run_stim');
+run_stimulation_spont_Hypo = AG_summerizeDAY_general_F (Imaging_DaysHypo_spont,HypoStruct_spont, 'run_stim');
+run_stimulation_stim_Hyper = AG_summerizeDAY_general_F (Imaging_DaysHyper_stim,HyperStruct_stim, 'run_stim');
+run_stimulation_stim_Hypo = AG_summerizeDAY_general_F (Imaging_DaysHypo_stim,HypoStruct_stim, 'run_stim');
+
+run_NOstimulation_spont_Hyper = AG_summerizeDAY_general_F (Imaging_DaysHyper_spont,HyperStruct_spont, 'run_no_stim');
+run_NOstimulation_spont_Hypo = AG_summerizeDAY_general_F (Imaging_DaysHypo_spont,HypoStruct_spont, 'run_no_stim');
+run_NOstimulation_stim_Hyper = AG_summerizeDAY_general_F (Imaging_DaysHyper_stim,HyperStruct_stim, 'run_no_stim');
+run_NOstimulation_stim_Hypo = AG_summerizeDAY_general_F (Imaging_DaysHypo_stim,HypoStruct_stim, 'run_no_stim');
+
+%% 5. save the summary variables   save(filename,variables)
+save('stim_Hypo','stim_Hypo');
+save('stim_Hyper','stim_Hyper');
+save('spont_Hypo','spont_Hypo');
+save('spont_Hyper','spont_Hyper');
+
+save('stand_no_stimulation_stim_Hypo','stand_no_stimulation_stim_Hypo');
+save('stand_no_stimulation_stim_Hyper','stand_no_stimulation_stim_Hyper');
+save('stand_no_stimulation_spont_Hypo','stand_no_stimulation_spont_Hypo');
+save('stand_no_stimulation_spont_Hyper','stand_no_stimulation_spont_Hyper');
+
+save('stand_stimulation_stim_Hypo','stand_stimulation_stim_Hypo');
+save('stand_stimulation_stim_Hyper','stand_stimulation_stim_Hyper');
+save('stand_stimulation_spont_Hypo','stand_stimulation_spont_Hypo');
+save('stand_stimulation_spont_Hyper','stand_stimulation_spont_Hyper');
+
+save('run_stimulation_stim_Hypo','run_stimulation_stim_Hypo');
+save('run_stimulation_stim_Hyper','run_stimulation_stim_Hyper');
+save('run_stimulation_spont_Hypo','run_stimulation_spont_Hypo');
+save('run_stimulation_spont_Hyper','run_stimulation_spont_Hyper');
+
+save('run_NOstimulation_stim_Hypo','run_NOstimulation_stim_Hypo');
+save('run_NOstimulation_stim_Hyper','run_NOstimulation_stim_Hyper');
+save('run_NOstimulation_spont_Hypo','run_NOstimulation_spont_Hypo');
+save('run_NOstimulation_spont_Hyper','run_NOstimulation_spont_Hyper');

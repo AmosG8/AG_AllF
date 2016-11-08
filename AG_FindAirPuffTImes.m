@@ -33,8 +33,9 @@ stim_frames = zeros(1,NumFrames);
 fprintf('the response window is up to 500 msec \n');
 col_window=1/FrameRate*1000;
 while col_window <500 %the response window is up to 500 msec
-    stim_frames(1,stim_indexes)=1;
-    stim_indexes=stim_indexes+1;
+    stim_frames(1,stim_indexes)=1;%this sets the first element to 1
+    stim_indexes=stim_indexes+1;%this will continue to add 1 until the end of the window
     col_window=col_window+1/FrameRate*1000;
 end
-
+figure(114);
+plot(stim_frames);

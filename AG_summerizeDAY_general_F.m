@@ -3,6 +3,8 @@ function [SummerizeDay] =  AG_summerizeDAY_general_F (Imaging_Days, Struct_, Sum
 %Imaging_DaysHyper_spont => Imaging_Days
 % HyperStruct_spont_ => Struct_
 % S_or => SummerizedVariable
+Artificial_fps=10;Default_fps=4.36;
+%output:  a cell array with the result
 
 SummerizeDay=cell(2,numel(Imaging_Days));%initialize the cell array
 for iDay=1:numel(Imaging_Days)  
@@ -11,11 +13,10 @@ for iDay=1:numel(Imaging_Days)
         if strcmp(Struct_(iEX).daysAfterBaseline, Imaging_Days(iDay))
            SummerizedVariable_Vec= mean(Struct_(iEX).(SummerizedVariable),2);
            if Struct_(iEX).fps%the if is for a case we dont have the fps info
-             SummerizedVariable_Vec= SummerizedVariable_Vec ./ Artificial_fps .* Struct_(iEX).fps; %this sets the results to be per 100msec
+             SummerizedVariable_Vec= (SummerizedVariable_Vec .* Artificial_fps) ./ Struct_(iEX).fps; %this sets the results to be per 100msec
            else
-               SummerizedVariable_Vec= SummerizedVariable_Vec ./ Artificial_fps .*Default_fps;
-               %AG changed the former calculation that was incorrect
-               %S_Or_Vec= S_Or_Vec .* Artificial_fps ./Default_fps;     30/10/16
+               SummerizedVariable_Vec= (SummerizedVariable_Vec .* Artificial_fps) ./Default_fps;
+
            end
            temp=[temp;SummerizedVariable_Vec];%adding the vector values to temp below the formers
            SummerizeDay{3+FOV,iDay}=SummerizedVariable_Vec;
