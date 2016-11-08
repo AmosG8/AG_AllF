@@ -6,6 +6,7 @@ function arrayStruct = addNewFieldToNonScalarStruct (arrayStruct,scalarStruct,id
 % assignment.
 %
 %  Pablo
+pause(0.1);
 
 %% compare field names and find new, if any
 fieldsInArray = fieldnames(arrayStruct);
