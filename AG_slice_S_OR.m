@@ -7,7 +7,7 @@ Mov_threshold=120;%we got this by comparing a moving carosel to not moving
                             %120 by eye seems like the treshold for movement. 
 %Samples_Per_Frame=1000;  %i used 1000
         
-%% going over the rows and computing 
+%% going over the rows and computing which frames belong to which condition
 % run_no_stim, run_stim, stand_no_stim, stand_stim
 
 for iEX=1:numel(EP_FILES_COMPILED)
@@ -15,6 +15,11 @@ for iEX=1:numel(EP_FILES_COMPILED)
     EP_FILES_COMPILED(iEX).run_no_stim = [];
     EP_FILES_COMPILED(iEX).stand_stim = [];
     EP_FILES_COMPILED(iEX).stand_no_stim =[];
+    
+    EP_FILES_COMPILED(iEX).C_df_run_stim = [];
+    EP_FILES_COMPILED(iEX).C_df_run_no_stim = [];
+    EP_FILES_COMPILED(iEX).C_df_stand_stim = [];
+    EP_FILES_COMPILED(iEX).C_df_stand_no_stim =[];
     %do i have an analog1 file  = air puff info
     if (~isempty(EP_FILES_COMPILED(iEX).StimVector)) ... %if there is analog1 
         && (~isempty(EP_FILES_COMPILED(iEX).S_or))
@@ -55,7 +60,7 @@ for iEX=1:numel(EP_FILES_COMPILED)
         %         plot(stim_frames);
 
  % if there is analog1 there's also analog 2 
- %% so now I find the running frames. 
+ %% find the running frames. 
         run_frames=zeros(1,NumFrames);   
         q = EP_FILES_COMPILED(iEX).SpeedVector;  
         a = (q>Mov_threshold);%a contains 0 or 1.
@@ -74,12 +79,14 @@ for iEX=1:numel(EP_FILES_COMPILED)
 %         figure();
 %         plot(a);
 
-        %separate S_or into the 4 matrixes
+        %% separate S_or into the 4 matrixes
         S_or=EP_FILES_COMPILED(iEX).S_or;
         EP_FILES_COMPILED(iEX).run_stim = S_or(:,stim_frames & run_frames);  %both stim_frames and run_frames = 1
         EP_FILES_COMPILED(iEX).run_no_stim = S_or(:,~stim_frames & run_frames);  %stim_frames isn't 1, and run_frames = 1
         EP_FILES_COMPILED(iEX).stand_stim = S_or(:,stim_frames & ~run_frames);  %stim_frames is 1, and run_frames = 0
         EP_FILES_COMPILED(iEX).stand_no_stim = S_or(:,~stim_frames & ~run_frames);  %stim_frames is 0, and run_frames = 0
+    
+        C_df=EP_FILES_COMPILED(iEX).S_or;
     else  % I don't have analog1
         EP_FILES_COMPILED(iEX).run_stim = [];
         EP_FILES_COMPILED(iEX).run_no_stim = [];

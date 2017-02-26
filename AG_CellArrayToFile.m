@@ -13,9 +13,16 @@ for iii=1:ColNum-1
 end
     colnumString=strcat(colnumString, '\n');
     %% now write the cell array to a file that contains the input number of columns
-    targetString=strcat(VarName,'Target.csv');
+    targetString=strcat(VarName,'Target7.csv');
     fileID = fopen(targetString,'w');
     formatSpec = colnumString;%'%d %d %d %d %d %d \n';
     [nrows,ncols] = size(MyCellArray);
-    fprintf(fileID,formatSpec,MyCellArray{2,:});
+    %fprintf of  MyCellArray{2,1}  will print the content of a cell
+%horizontaly until the last column and then will go one row below.
+% to force it writing the content of each cell only vertically into the
+% appropiate column:
+    AG(:,1)=MyCellArray{2,1};
+    AG(:,2)=MyCellArray{2,2};
+    %fprintf(fileID,formatSpec,AG);%MyCellArray{2,1});
+    
     fclose(fileID);

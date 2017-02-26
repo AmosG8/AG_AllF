@@ -1,17 +1,13 @@
 function [Xpos, Ypos, Xneg, Yneg] = AG_computeXcorrAnalysis(thisEXP,prmts)
 %8-Sep-16
 if thisEXP.C_df %AG added that if for a case there's no data
-    %The following files have unclear problem and cause the code to fall
-    if ~strcmp (thisEXP.dataFileName, 'MAT_540_4d_noPuff_Part1_Motion_Pix_correcte.mat')...
-            && ~strcmp (thisEXP.dataFileName, 'MAT_540_movie1_for_arb1_mag_1p4_fr_4p36_for_AMOS_puff_Motion_pixCorCh.mat')...
-            && ~strcmp (thisEXP.dataFileName, '540_4d_mov1_Part2.mat')...
-            && ~strcmp (thisEXP.dataFileName, 'MAT_540_movie2_for_arb2_mag_2_fr_4p36_for_AMOS_puff_PixCorCh_MotionCo.mat')...
-            && ~strcmp (thisEXP.dataFileName, 'MAT_540_movie3_for_arb3_mag_2_fr_4p36_for_AMOS_puff_PixCorCh_MotionCo.mat')...
-            && ~strcmp (thisEXP.dataFileName, 'MAT_540_movie3_for_arb3_mag_2_fr_4p36_for_AMOS_puff_PixCorCh_MotionCo.mat')...
-            && ~strcmp (thisEXP.dataFileName, 'MAT_540_movie3_for_arb3_mag_2_fr_4p36_for_AMOS_part2_puff_PixCorCh_MotionCo.mat')%...            
-        prmts.doComputeSHIFT = 0;
+    %The following files have unclear problem and cause the code to fail
+%     if ~strcmp (thisEXP.dataFileName, 'MAT_540_4d_noPuff_Part1_Motion_Pix_correcte.mat')...
+%         && ~strcmp (thisEXP.dataFileName, 'MAT_999_HYPER_DAY_0_FOV_2_SPONT_PixCorCh_MotionCo.matFiiX.mat') 
+        %...            
+        prmts.doComputeSHIFT = 1;
         prmts.doComputeSVD = 0;
-        prmts.doSubsampleImg = 1;
+        prmts.doSubsampleImg = 0;%1;AG 12/12
         prmts.minCorrValToPlotEdges = 0.6;
         %AG uncommnented the 4 above lines
         fprintf ('%s \n', thisEXP.dataFileName);
@@ -20,7 +16,7 @@ if thisEXP.C_df %AG added that if for a case there's no data
             imgSize = size(img);
             img = imresize(img(1:2:end,:),imgSize/2);
         end
-    end %of strcmp
+    %end %of strcmp
     %% get data
     %this is the C_df matrix of the EP analysis
     S_or = thisEXP.S_or; 
@@ -64,6 +60,7 @@ if thisEXP.C_df %AG added that if for a case there's no data
     %using the following (A x B)/[norm(A) * norm(B)] where A and B are the
     %"deconvolved" calcium vectors and "norm" outputs the Euclidean lenght of
     %each vector, Pearson correlation gives an identical answer...
+    if issparse(dF);dF=full(dF);end
     [R,PR]=corrcoef(dF','rows','pairwise');
     
     %% plot an ordered correlation matrix based on distances on the the
@@ -151,43 +148,44 @@ if thisEXP.C_df %AG added that if for a case there's no data
     %xlabel('Distance','FontSize',22)  %AG commneted
     %ylabel('Correlation Coeff','FontSize',22)
    
-%     %% compute significance  AG commneted 
-%     % compute significance by "shifting" 100 times the traces and recomputing
-%     %this used the SHIFT algorithm of Louie and Wilson 2001:
-%     %
-%     % Entire spike train vectors are temporally shifted relative to original alignment,
-%     % with relative temporal order preserved within each spike train. The shift distance
-%     % is pseudorandomly chosen and ranges between half the window length backward and
-%     % half the window length forward. The shift is circular, such that data removed from
-%     % the pattern at one end is reinserted at the opposite end.
-%     
-%     if prmts.doComputeSHIFT
-%         kpairs = nchoosek(1:nCells,2);
-%         nPairs = size(kpairs,1);
-%         nSim = 1000;
-%         Psim = zeros(nPairs,1);
-%         parfor iPair = 1 : nPairs
-%             for iITER = 1 : nSim
-%                 v1 = circshift(dF(kpairs(iPair,1),:),[1 -randi(nT/2)]);%shift backwards
-%                 v2 = circshift(dF(kpairs(iPair,2),:),[1 randi(nT/2)]);%shift forward
-%                 rsim = corrcoef(v1,v2);
-%                 Psim(iPair) = Psim(iPair) + double(rsim(2)<R(kpairs(iPair,1),kpairs(iPair,1)));
-%             end %iter
-%         end %pairs
-%         Psim = Psim/nSim;
-%     end
-%     %% SVD analysis on matrix  (plot eigenval of 10 first eigvectors)
-%     
-%     if prmts.doComputeSVD
-%         [U,S,V] = eig(R);
-%         figure
-%         plot(diag(S))
-%         xlabel('Eigenvector')
-%         ylabel('Eigenvalue')
-%     end
-%     
-%      %s
-%     thisEXP.D = D;
+    %% compute significance  AG commneted 
+    % compute significance by "shifting" 100 times the traces and recomputing
+    %this used the SHIFT algorithm of Louie and Wilson 2001:
+    %
+    % Entire spike train vectors are temporally shifted relative to original alignment,
+    % with relative temporal order preserved within each spike train. The shift distance
+    % is pseudorandomly chosen and ranges between half the window length backward and
+    % half the window length forward. The shift is circular, such that data removed from
+    % the pattern at one end is reinserted at the opposite end.
+    
+    if prmts.doComputeSHIFT
+        kpairs = nchoosek(1:nCells,2);% n!/((n–k)! k!). This is the number of combinations of n items taken k at a time.
+        nPairs = size(kpairs,1);
+        nSim = 1000;
+        Psim = zeros(nPairs,1);
+        parfor iPair = 1 : nPairs
+            for iITER = 1 : nSim
+                v1 = circshift(dF(kpairs(iPair,1),:),[1 -randi(nT/2)]);%shift backwards
+                v2 = circshift(dF(kpairs(iPair,2),:),[1 randi(nT/2)]);%shift forward
+                rsim = corrcoef(v1,v2);
+                Psim(iPair) = Psim(iPair) + double(rsim(2)<R(kpairs(iPair,1),kpairs(iPair,1)));
+            end %iter
+        end %pairs
+        Psim = Psim/nSim;
+    end
+    %% SVD analysis on matrix  (plot eigenval of 10 first eigvectors)
+    
+    if prmts.doComputeSVD
+        [U,S,V] = eig(R);
+        figure
+        plot(diag(S))
+        xlabel('Eigenvector')
+        ylabel('Eigenvalue')
+    end
+    
+     %s
+    thisEXP.D = D;  %ag uncommneted till here
+    
 else %relates to the if for a case there's no data
 Xpos=NaN;Ypos=NaN;Xneg=NaN;Yneg=NaN;    
     

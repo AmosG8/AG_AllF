@@ -1,10 +1,12 @@
-%function [SummerizeDay_spont_Hyper, SummerizeDay_spont_Hypo, SummerizeDay_stim_Hyper, SummerizeDay_stim_Hypo]=SummerizeDay(EP_FILES_COMPILED)
-
-%returns 4 cell arrays
-%each of them has 2 rows: the 1st row contains strings with the days
-%the 2nd contains a vector of S_or summerized for each day
+%creates cell arrays
+%each has 2 rows: 
+%1st row titles: days of imaging after TAC
+%2nd row a vector of whatever variable -currently S_or summerized for each day
 %normalized for 100msec (Artificial_fps=10)
-clear all;
+
+clearvars;
+[FileName,path2sourceDir] = uigetfile('*.mat','Select the EP compiled file');
+cd(path2sourceDir);
 load('EP_FILES_COMPILED.mat');
 %% Definitions
 Artificial_fps=10; %normalize S_or to 10fps

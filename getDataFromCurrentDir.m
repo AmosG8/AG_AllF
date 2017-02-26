@@ -33,9 +33,10 @@ ptr2mat = ptr2mat(logical(valid));
 if isempty(ptr2mat)
     warning('No EP data here...')
 else
-    load(fullfile(currentDir,ptr2mat.name))
-    ptr2mat.name
+        ptr2mat.name
     currentDir
+    load(fullfile(currentDir,ptr2mat.name))
+
     dataRow.dataFileName = ptr2mat.name;
     dataRow.Coor = Coor;
     dataRow.S_or = S_or;
@@ -44,10 +45,12 @@ else
     else
         dataRow.C_df = [];%C_df;
     end
-    dataRow.run_stim=run_stim;
-    dataRow.run_no_stim=run_no_stim;
-    dataRow.stand_stim=stand_stim;
-    dataRow.stand_no_stim=stand_no_stim;
+    if length(dataRow.run_stim)>0
+        dataRow.run_stim=run_stim;
+        dataRow.run_no_stim=run_no_stim;
+        dataRow.stand_stim=stand_stim;
+        dataRow.stand_no_stim=stand_no_stim;
+    end
     
 end
     

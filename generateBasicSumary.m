@@ -9,25 +9,26 @@ Coor = thisRow.Coor;
 S_or = thisRow.S_or;
 
 %% plot image
-figure('Name',thisRow.dataFileName)
-subplot(3,3,[2 3 5 6])
-imagesc(img)
-axis image
-title(thisRow.dataFileName)
-imagesc(img)
-colormap copper
-hold on
-myctr = zeros(size(Coor,1),2);
-for iCOOR = 1 : numel(Coor)
-    xi = Coor{iCOOR,1}(1,:);
-    yi = Coor{iCOOR,1}(2,:);
-    myctr (iCOOR,:) = [mean(xi) mean(yi)];
-    plot(xi,yi,'r.','markerSize',8)
-    text(myctr(iCOOR,1),myctr(iCOOR,2),num2str(iCOOR))
-end
-axis image
-axis off
-
+if length(thisRow.dataFileName)>0 %if the filename is empty
+    figure('Name',thisRow.dataFileName)
+    subplot(3,3,[2 3 5 6])
+    imagesc(img)
+    axis image
+    title(thisRow.dataFileName)
+    imagesc(img)
+    colormap copper
+    hold on
+    myctr = zeros(size(Coor,1),2);
+    for iCOOR = 1 : numel(Coor)
+        xi = Coor{iCOOR,1}(1,:);
+        yi = Coor{iCOOR,1}(2,:);
+        myctr (iCOOR,:) = [mean(xi) mean(yi)];
+        plot(xi,yi,'r.','markerSize',8)
+        text(myctr(iCOOR,1),myctr(iCOOR,2),num2str(iCOOR))
+    end
+    axis image
+    axis off
+end 
 %% plot traces
 
 %add an increment to each dF line so they separate in the plot
@@ -57,4 +58,4 @@ xlabel('Frame')
 %%
 filename = thisRow.dataFileName(1:strfind(thisRow.dataFileName,'.mat')-1)
 
-export_fig(fullfile(path2sourceDir,filename),'-eps')%pb  added ,'-eps'
+%export_fig(fullfile(path2sourceDir,filename),'-png')%pb  added ,'-eps'

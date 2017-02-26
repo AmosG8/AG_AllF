@@ -11,7 +11,7 @@ SummerizeDay=cell(2,numel(Imaging_Days)*4);%initialize the cell array
 %2nd row is a collection of all cells of that day
 %other rows are for each FOV
 for iDay=1:numel(Imaging_Days)  
-    FOV=0;    tempXpos=[];tempYpos=[];tempXneg=[];tempYneg=[];
+    FOV=0;  tempXpos=[];tempYpos=[];tempXneg=[];tempYneg=[];
     for iEX=1:numel(dataset)%going over all experiments verify if they match the day
         if strcmp(dataset(iEX).daysAfterBaseline, Imaging_Days(iDay))
            [Xpos, Ypos, Xneg, Yneg]=AG_computeXcorrAnalysis(dataset(iEX),prmts);
